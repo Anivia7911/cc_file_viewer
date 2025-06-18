@@ -1,4 +1,4 @@
-package com.example.cc_viewer.demo;
+package com.cc_viewer.demo;
 
 import lombok.Data;
 
