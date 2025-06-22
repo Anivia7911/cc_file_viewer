@@ -28,11 +28,11 @@ public class FileViewerService {
         this.converterFactory = converterFactory;
     }
 
-    public String getFileViewerUrl(String fileUrl, String converterType, Model model) {
+    public String getFileViewerUrl(String fileUrl, String fullFileName, String converterType, Model model) {
         FileAttributeModel fileModel = new FileAttributeModel();
+        fileModel.setFileName(fullFileName);
         fileModel.setFileUrl(fileUrl);
         String fileType = FileUtils.getFileSuffix(fileModel.getFileName());
-        model.addAttribute("fileType", fileType);
         if (!FileType.validType(fileType)) {
             return "err";
         }

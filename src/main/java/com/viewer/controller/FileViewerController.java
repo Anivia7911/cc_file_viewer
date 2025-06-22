@@ -22,8 +22,8 @@ public class FileViewerController {
      * 获取文件预览地址
      */
     @RequestMapping("/get/preview-url")
-    public String getFileViewerUrl(String fileUrl, String converterType, Model model ) {
-        return service.getFileViewerUrl(fileUrl, converterType, model);
+    public String getFileViewerUrl(String fileUrl, String fullFileName, String converterType, Model model ) {
+        return service.getFileViewerUrl(fileUrl, fullFileName, converterType, model);
     }
 
 
