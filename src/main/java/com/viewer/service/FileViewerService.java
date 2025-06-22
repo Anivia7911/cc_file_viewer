@@ -34,12 +34,12 @@ public class FileViewerService {
         String fileType = FileUtils.getFileSuffix(fileModel.getFileName());
         model.addAttribute("fileType", fileType);
         if (!FileType.validType(fileType)) {
-            return "forward:/err";
+            return "err";
         }
         fileModel.setFileType(fileType);
         FileConverter fileConverter = converterFactory.getFileConverter(converterType);
         if (fileConverter == null) {
-            return "forward:/err.html";
+            return "err";
         }
         fileConverter.convert(fileModel);
         return convertPreviewUrl(fileModel, model);
@@ -48,7 +48,7 @@ public class FileViewerService {
     private String convertPreviewUrl(FileAttributeModel fileModel, Model model){
         File file = new File(fileModel.getConvertedFilePath());
         if (!file.exists() || !file.isFile()) {
-            return "forward:/err";
+            return "err";
         }
 
         return null;
