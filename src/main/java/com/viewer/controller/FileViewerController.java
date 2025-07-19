@@ -36,14 +36,5 @@ public class FileViewerController {
         return service.filePreview(req, fileUrl, model);
     }
 
-    /**
-     * 测试
-     */
-    @RequestMapping("/test")
-    public String test(Model model) {
-        model.addAttribute("users", List.of(new User("1", "张三"), new User("2", "李四")));
-        return "test";
-    }
-
 
 }
