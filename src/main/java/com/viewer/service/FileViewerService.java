@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-
 /**
  * @author: Jie Bugui
  * @create: 2025-06-22 20:31
@@ -38,7 +35,7 @@ public class FileViewerService {
             return FileViewerConst.ERROR_PAGE;
         }
         //文件转换处理
-        fileConverter.convert(fileAttribute);
+        fileConverter.convertFile(fileAttribute);
         return convertPreviewUrl(fileAttribute.getConvertedFileType());
     }
 

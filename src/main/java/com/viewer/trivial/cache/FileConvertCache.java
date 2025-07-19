@@ -8,13 +8,13 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class FileConvertCache {
-    // 缓存原始文件路径 -> 转换后的 PDF 路径
+
     private final Cache<String, String> cache;
 
     public FileConvertCache() {
         this.cache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.HOURS) // 缓存 1 小时后过期
-                .maximumSize(100) // 最多缓存 100 个文件
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .maximumSize(100)
                 .build();
     }
 
@@ -26,8 +26,13 @@ public class FileConvertCache {
         cache.put(key, value);
     }
 
-    public void invalidate(String key) {
+    public void remove(String key) {
         cache.invalidate(key);
+    }
+
+    public void removeByConvertedFilename(String filename) {
+        // 遍历缓存，找到 value 包含 filename 的 key 删除
+        cache.asMap().entrySet().removeIf(entry -> entry.getValue().contains(filename));
     }
 
     public void invalidateAll() {
