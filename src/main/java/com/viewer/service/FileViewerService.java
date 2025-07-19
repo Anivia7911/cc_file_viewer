@@ -3,16 +3,18 @@ package com.viewer.service;
 import com.viewer.convert.FileConverter;
 import com.viewer.convert.FileConverterFactory;
 import com.viewer.model.FileAttributeModel;
+import com.viewer.trivial.FileViewerConst;
 import com.viewer.trivial.enumdata.FileType;
 import com.viewer.trivial.utils.FileUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 /**
- * @description: 业务层
  * @author: Jie Bugui
  * @create: 2025-06-22 20:31
  */
@@ -28,29 +30,30 @@ public class FileViewerService {
         this.converterFactory = converterFactory;
     }
 
-    public String getFileViewerUrl(String fileUrl, String fullFileName, String converterType, Model model) {
-        FileAttributeModel fileModel = new FileAttributeModel();
-        fileModel.setFileName(fullFileName);
-        fileModel.setFileUrl(fileUrl);
-        String fileType = FileUtils.getFileSuffix(fileModel.getFileName());
-        if (!FileType.validType(fileType)) {
-            return "err";
-        }
-        fileModel.setFileType(fileType);
-        FileConverter fileConverter = converterFactory.getFileConverter(converterType);
+    public String filePreview(HttpServletRequest req, String fileUrl, Model model) {
+        FileAttributeModel fileAttribute = FileUtils.getFileAttribute(req, fileUrl);
+        model.addAttribute("fileAttribute", fileAttribute);
+        FileConverter fileConverter = converterFactory.getFileConverter(fileAttribute.getConverterType());
         if (fileConverter == null) {
-            return "err";
+            return FileViewerConst.ERROR_PAGE;
         }
-        fileConverter.convert(fileModel);
-        return convertPreviewUrl(fileModel, model);
+        //文件转换处理
+        fileConverter.convert(fileAttribute);
+        return convertPreviewUrl(fileAttribute.getConvertedFileType());
     }
 
-    private String convertPreviewUrl(FileAttributeModel fileModel, Model model){
-        File file = new File(fileModel.getConvertedFilePath());
-        if (!file.exists() || !file.isFile()) {
-            return "err";
+    private String convertPreviewUrl(FileType convertedFileType) {
+        switch (convertedFileType) {
+            case pdf:
+                return FileViewerConst.PDF_PAGE;
+            case doc:
+            case docx:
+            case xls:
+            case xlsx:
+            case ppt:
+            case pptx:
+            default:
+                return FileViewerConst.ERROR_PAGE;
         }
-
-        return null;
     }
 }

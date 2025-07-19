@@ -1,5 +1,6 @@
 package com.viewer.convert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 @Component
 public class FileConverterFactory {
 
+    @Autowired
     private Map<String, FileConverter> converterMap;
 
 

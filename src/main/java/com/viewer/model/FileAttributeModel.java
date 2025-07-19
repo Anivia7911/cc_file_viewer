@@ -1,5 +1,6 @@
 package com.viewer.model;
 
+import com.viewer.trivial.enumdata.FileType;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,12 +16,12 @@ public class FileAttributeModel implements Serializable {
     /**
      * 源文件名
      */
-    public String fileName = "xxx.pdf";
+    public String fileName;
 
     /**
      * 源文件类型
      */
-    public String fileType = "pdf";
+    public FileType fileType;
 
     /**
      * 源文件url
@@ -41,4 +42,14 @@ public class FileAttributeModel implements Serializable {
      * 转换后的文件路径
      */
     private String convertedFilePath;
+
+    /**
+     * 转换后文件类型
+     */
+    private FileType convertedFileType;
+
+    /**
+     * 转换方式
+     */
+    private String converterType = "Default";
 }
