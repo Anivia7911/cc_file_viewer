@@ -3,7 +3,9 @@ package com.viewer.convert.impl;
 import com.viewer.convert.FileConverter;
 import com.viewer.model.FileAttributeModel;
 import com.viewer.trivial.FileViewerConst;
+import com.viewer.trivial.cache.FileConvertCache;
 import com.viewer.trivial.enumdata.FileType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -20,6 +22,14 @@ import java.util.UUID;
  */
 @Component("Default")
 public class DefFileConverter implements FileConverter {
+
+    private final FileConvertCache fileConvertCache;
+
+    @Autowired
+    public DefFileConverter(FileConvertCache fileConvertCache) {
+        this.fileConvertCache = fileConvertCache;
+    }
+
     @Override
     public void convert(FileAttributeModel model) {
         model.setConvertedFileType(FileType.pdf);
@@ -28,6 +38,15 @@ public class DefFileConverter implements FileConverter {
             if (filePath.startsWith("file:")) {
                 filePath = java.net.URLDecoder.decode(filePath.substring(5), StandardCharsets.UTF_8); // 修正substring参数
             }
+
+            // 先查缓存
+            String cachedPath = fileConvertCache.getIfPresent(filePath);
+            if (cachedPath != null) {
+                model.setConvertedFilePath(cachedPath);
+                return;
+            }
+
+
             File file = new File(filePath);
 
             if (!file.exists() || !file.isFile()) {
@@ -51,7 +70,11 @@ public class DefFileConverter implements FileConverter {
             Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             // 设置转换后的文件路径
-            model.setConvertedFilePath("/temp/" + uniqueFilename); // 使用相对路径
+            String convertedPath = "/temp/" + uniqueFilename;
+            model.setConvertedFilePath(convertedPath); // 使用相对路径
+
+            // 写入缓存
+            fileConvertCache.put(filePath, convertedPath);
         } catch (Exception e) {
             e.printStackTrace();
             model.setConvertedFilePath(FileViewerConst.ERROR_PAGE);
