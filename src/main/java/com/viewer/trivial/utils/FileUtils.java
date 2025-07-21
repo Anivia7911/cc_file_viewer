@@ -5,10 +5,20 @@ import com.viewer.trivial.enumdata.FileType;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @description: TODO
@@ -26,7 +36,7 @@ public class FileUtils {
 
     public static FileAttributeModel getFileAttribute(HttpServletRequest req, String fileUrl) {
         FileAttributeModel fileAttribute = new FileAttributeModel();
-        String fullFileName = getUrlParameterReg(fileUrl, "fullFileName");
+        String fullFileName = getUrlParameterReg(fileUrl, "fullfilename");
         if (StringUtils.hasText(fullFileName)) {
             fileAttribute.setFileName(fullFileName);
             fileAttribute.setFileType(typeFromFileName(fullFileName));
@@ -125,5 +135,46 @@ public class FileUtils {
         String nonPramStr = url.substring(0, url.contains("?") ? url.indexOf("?") : url.length());
         String fileName = nonPramStr.substring(nonPramStr.lastIndexOf("/") + 1);
         return typeFromFileName(fileName);
+    }
+
+    /**
+     * 文件下载，返回文件路径
+     */
+    public static void downLoadFile(FileAttributeModel model) {
+        try {
+            String fileUrl = model.getFileUrl();
+            if (com.viewer.trivial.utils.StringUtils.isBlank(fileUrl)) {
+                throw new RuntimeException("fileUrl cannot be empty.");
+            }
+            String filePath;
+            model.setUuid(UUID.randomUUID().toString());
+            if (fileUrl.startsWith("file://")) {
+                // 本地文件协议，直接截取路径
+                filePath = java.net.URLDecoder.decode(fileUrl.substring(5), StandardCharsets.UTF_8);
+            } else if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://") || fileUrl.startsWith("ftp://")) {
+                // HTTP/HTTPS 协议，下载文件
+                URL url = new URL(fileUrl);
+                // 获取项目资源目录下的 static/temp 路径
+                Path projectRoot = Paths.get(System.getProperty("user.dir"));
+                Path sourceDir = projectRoot.resolve("file/source/" + model.getUuid());
+                // 创建目录（如果不存在）
+                if (!Files.exists(sourceDir)) {
+                    Files.createDirectories(sourceDir);
+                }
+                // 生成唯一文件名，避免冲突
+                String uniqueFilename = model.getFileName();
+                Path targetPath = sourceDir.resolve(uniqueFilename);
+
+                try (InputStream in = url.openStream()) {
+                    Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                filePath = targetPath.toString();
+            } else {
+                throw new UnsupportedOperationException("Unsupported file protocol.");
+            }
+            model.setFilePath(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

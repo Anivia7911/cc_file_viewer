@@ -1,5 +1,6 @@
 package com.viewer.trivial.cache;
 
+import com.viewer.model.FileAttributeModel;
 import org.springframework.stereotype.Component;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -9,30 +10,25 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class FileConvertCache {
 
-    private final Cache<String, String> cache;
+    private final Cache<String, FileAttributeModel> cache;
 
     public FileConvertCache() {
         this.cache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.HOURS)
+                .expireAfterWrite(20, TimeUnit.MINUTES)
                 .maximumSize(100)
                 .build();
     }
 
-    public String getIfPresent(String key) {
+    public FileAttributeModel getIfPresent(String key) {
         return cache.getIfPresent(key);
     }
 
-    public void put(String key, String value) {
+    public void put(String key, FileAttributeModel value) {
         cache.put(key, value);
     }
 
     public void remove(String key) {
         cache.invalidate(key);
-    }
-
-    public void removeByConvertedFilename(String filename) {
-        // 遍历缓存，找到 value 包含 filename 的 key 删除
-        cache.asMap().entrySet().removeIf(entry -> entry.getValue().contains(filename));
     }
 
     public void invalidateAll() {

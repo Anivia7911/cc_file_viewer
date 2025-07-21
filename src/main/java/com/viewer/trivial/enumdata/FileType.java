@@ -12,14 +12,30 @@ import java.util.Map;
  * @create: 2025-06-22 20:39
  */
 public enum FileType {
-    pdf,
-    doc,
-    docx,
-    xls,
-    xlsx,
-    ppt,
-    pptx
+    pdf("pdfFileConverter", "pdf"),
+    doc("docFileConverter", "doc"),
+    docx("docxFileConverter", "docx"),
+    xls("xlsFileConverter", "xls"),
+    xlsx("xlsxFileConverter", "xlsx"),
+    ppt("pptFileConverter", "ppt"),
+    pptx("pptxFileConverter", "pptx"),
+    error("error", "err")
     ;
+
+    private final String converter;
+    private final String page;
+    FileType(String converter, String page) {
+        this.converter = converter;
+        this.page = page;
+    }
+
+    public String getConverter() {
+        return converter;
+    }
+
+    public String getPage() {
+        return page;
+    }
 
     private static final Map<String, FileType> FILE_TYPE_MAPPER = new HashMap<>();
 

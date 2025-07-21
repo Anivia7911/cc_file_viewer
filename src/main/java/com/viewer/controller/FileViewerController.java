@@ -24,8 +24,7 @@ public class FileViewerController {
         this.service = service;
     }
 
-//    file:///Users/cwh/测试/测试.pdf
-//    http://localhost:7911/preview?filePath=ZmlsZTovLy9Vc2Vycy9jd2gv5rWL6K+VL+a1i+ivlS5wZGY=
+//    http://localhost:7911/preview?filePath=ZmlsZTovLy9DOi9Vc2Vycy93aW4xMC9Eb2N1bWVudHMv4oCc5bGx5Lic6YCa4oCd5bmz5Y+wIOWFqOecgee7n+S4gOeUqOaIt+euoeeQhuezu+e7n+aOpeWFpeinhOiMgzIwMjExMTE2LXYyLjMucGRm
     @GetMapping("/preview")
     public String filePreview(HttpServletRequest req, String filePath, Model model) {
         String fileUrl = WebUtils.decodeUrl(filePath);

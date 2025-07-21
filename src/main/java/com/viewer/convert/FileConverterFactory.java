@@ -13,10 +13,10 @@ import java.util.Map;
 public class FileConverterFactory {
 
     @Autowired
-    private Map<String, FileConverter> converterMap;
+    private Map<String, AbstractFileConverter> converterMap;
 
 
-    public FileConverter getFileConverter(String converterType) {
+    public AbstractFileConverter getFileConverter(String converterType) {
         if (converterMap == null) {
             return null;
         }

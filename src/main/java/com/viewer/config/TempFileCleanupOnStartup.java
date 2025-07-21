@@ -16,7 +16,7 @@ public class TempFileCleanupOnStartup {
     public void cleanupTempDirectory() {
         try {
             // 获取项目根目录下的 temp 目录
-            Path tempDir = Paths.get("temp");
+            Path tempDir = Paths.get("file/temp");
 
             if (Files.exists(tempDir) && Files.isDirectory(tempDir)) {
                 // 遍历并删除所有文件（不删除目录本身）

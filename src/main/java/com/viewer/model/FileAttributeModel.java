@@ -31,12 +31,22 @@ public class FileAttributeModel implements Serializable {
     /**
      * 文件大小,以byte为单位
      */
-    public long fileSize;
+//    public long fileSize;
 
     /**
      * 临时文件目录,用于存放临时文件
      */
-    private String tempDir;
+//    private String tempDir;
+
+    /**
+     * UUID
+     */
+    public String uuid;
+
+    /**
+     * 下载后的文件路径
+     */
+    private String filePath;
 
     /**
      * 转换后的文件路径
@@ -51,5 +61,5 @@ public class FileAttributeModel implements Serializable {
     /**
      * 转换方式
      */
-    private String converterType = "Default";
+//    private String converterType = "Default";
 }

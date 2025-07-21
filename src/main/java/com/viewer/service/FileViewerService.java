@@ -1,6 +1,5 @@
 package com.viewer.service;
 
-import com.viewer.convert.FileConverter;
 import com.viewer.convert.FileConverterFactory;
 import com.viewer.model.FileAttributeModel;
 import com.viewer.trivial.FileViewerConst;
@@ -30,27 +29,12 @@ public class FileViewerService {
     public String filePreview(HttpServletRequest req, String fileUrl, Model model) {
         FileAttributeModel fileAttribute = FileUtils.getFileAttribute(req, fileUrl);
         model.addAttribute("fileAttribute", fileAttribute);
-        FileConverter fileConverter = converterFactory.getFileConverter(fileAttribute.getConverterType());
+        var fileConverter = converterFactory.getFileConverter(fileAttribute.getFileType().getConverter());
         if (fileConverter == null) {
             return FileViewerConst.ERROR_PAGE;
         }
         //文件转换处理
-        fileConverter.convertFile(fileAttribute);
-        return convertPreviewUrl(fileAttribute.getConvertedFileType());
-    }
-
-    private String convertPreviewUrl(FileType convertedFileType) {
-        switch (convertedFileType) {
-            case pdf:
-                return FileViewerConst.PDF_PAGE;
-            case doc:
-            case docx:
-            case xls:
-            case xlsx:
-            case ppt:
-            case pptx:
-            default:
-                return FileViewerConst.ERROR_PAGE;
-        }
+        fileConverter.convert(fileAttribute);
+        return fileAttribute.getConvertedFileType().getPage();
     }
 }

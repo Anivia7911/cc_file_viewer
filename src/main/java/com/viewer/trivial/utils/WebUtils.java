@@ -2,6 +2,7 @@ package com.viewer.trivial.utils;
 
 import io.micrometer.common.util.StringUtils;
 
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -36,5 +37,19 @@ public class WebUtils {
             return new byte[0];
         }
         return Base64.getDecoder().decode(base64String);
+    }
+
+    /**
+     * 判断url是否是http资源
+     */
+    public static boolean isHttpUrl(URL url) {
+        return url.getProtocol().toLowerCase().startsWith("file") || url.getProtocol().toLowerCase().startsWith("http");
+    }
+
+    /**
+     * 判断url是否是ftp资源
+     */
+    public static boolean isFtpUrl(URL url) {
+        return "ftp".equalsIgnoreCase(url.getProtocol());
     }
 }
