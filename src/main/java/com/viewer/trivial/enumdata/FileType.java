@@ -13,8 +13,8 @@ import java.util.Map;
  */
 public enum FileType {
     pdf("pdfFileConverter", "pdf"),
-    doc("docFileConverter", "doc"),
-    docx("docxFileConverter", "docx"),
+    doc("wordFileConverter", "doc"),
+    docx("wordFileConverter", "docx"),
     xls("xlsFileConverter", "xls"),
     xlsx("xlsxFileConverter", "xlsx"),
     ppt("pptFileConverter", "ppt"),

@@ -28,7 +28,7 @@ public abstract class AbstractFileConverter {
 
     public void convert(FileAttributeModel model) {
         try {
-            cleanupIfExceeds(Paths.get("file/temp"), 1 * 1024 * 1024);
+            cleanupIfExceeds(Paths.get("file/temp"), 100 * 1024 * 1024);
             //查询缓存
             final FileAttributeModel cacheModel = fileConvertCache.getIfPresent(model.getFileUrl());
             if (cacheModel != null && StringUtils.isNotBlank(cacheModel.getConvertedFilePath())) {

@@ -3,21 +3,27 @@ package com.viewer.convert.impl;
 import com.viewer.convert.AbstractFileConverter;
 import com.viewer.model.FileAttributeModel;
 import com.viewer.trivial.enumdata.FileType;
+import org.jodconverter.core.DocumentConverter;
+import org.jodconverter.core.office.InstalledOfficeManagerHolder;
+import org.jodconverter.core.office.OfficeManager;
+import org.jodconverter.local.LocalConverter;
+import org.jodconverter.local.office.LocalOfficeManager;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 /**
- * pdf文件转换器
+ * word文件转换器
+ *
  * @author hcw
- * @date 2025/7/21 13:59:13
+ * @date 2025/7/25 10:47:42
  */
 @Service
-public class PdfFileConverter extends AbstractFileConverter {
+public class WordFileConverter extends AbstractFileConverter {
+
     @Override
     protected void convertFileHandle(FileAttributeModel model) {
         try {
@@ -27,6 +33,7 @@ public class PdfFileConverter extends AbstractFileConverter {
                 model.setConvertedFileType(FileType.error);
                 return;
             }
+
             // 获取项目资源目录下的 static/temp 路径
             Path projectRoot = Paths.get(System.getProperty("user.dir"));
             Path tempDir = projectRoot.resolve("file/temp/" + model.getUuid());
@@ -35,20 +42,27 @@ public class PdfFileConverter extends AbstractFileConverter {
             if (!Files.exists(tempDir)) {
                 Files.createDirectories(tempDir);
             }
-
-            // 生成唯一文件名，避免冲突
-            String uniqueFilename = file.getName();
+            String uniqueFilename = file.getName().replaceAll("\\.(doc|docx)$", ".pdf");
             Path targetPath = tempDir.resolve(uniqueFilename);
 
-            // 复制文件到临时目录
-            Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            // 设置转换后的文件路径
-            model.setConvertedFilePath("/file/temp/"  + model.getUuid() + "/" + uniqueFilename); // 使用相对路径
-            model.setConvertedFileType(FileType.pdf); // 使用相对路径
+
+            // 2. 创建转换器
+            DocumentConverter converter = LocalConverter.make(InstalledOfficeManagerHolder.getInstance());
+
+            // 3. 执行转换
+            converter.convert(file)
+                    .to(new File(targetPath.toString()))
+                    .execute();
+
+            // 转换成功，设置输出文件路径
+            model.setConvertedFilePath("/file/temp/" + model.getUuid() + "/" + uniqueFilename);
+            model.setConvertedFileType(FileType.pdf);
+
         } catch (Exception e) {
             e.printStackTrace();
             model.setConvertedFileType(FileType.error);
         }
     }
+
 }
