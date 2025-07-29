@@ -66,6 +66,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
+                    <include>**/*</include>
                     <include>app/libreoffice/**</include>
                 </includes>
             </resource>
