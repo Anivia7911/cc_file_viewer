@@ -359,6 +359,25 @@ body {
     color: #3498db;
 }
 
+.tab-preview-history .preview-btn {
+    background: linear-gradient(135deg, #3498db, #9b59b6);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+    min-width: 120px;
+}
+
+.tab-preview-history .preview-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* 文件预览区域 */
 .tab-preview {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 249, 250, 0.5) 100%);
