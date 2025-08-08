@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileList = document.getElementById('fileList');
     const fileUrl = document.getElementById('fileUrl');
     const previewUrlBtn = document.getElementById('previewUrlBtn');
+    const previewPaneContent = document.getElementById('preview-pane-content');
     
     // 选项卡切换
     const tabs = document.querySelectorAll('.tab-button');
@@ -41,9 +42,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewUrlBtn) {
         previewUrlBtn.addEventListener('click', function() {
             if (fileUrl.value.trim() !== '') {
+                // 切换到预览面板
+                switchToPreviewPane();
+                
+                // 显示加载中提示
+                previewPaneContent.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; flex: 1; min-height: 75vh;">加载中...</div>';
+                
+                // 构造预览URL并嵌入iframe
                 const encodedUrl = btoa(encodeURIComponent(fileUrl.value.trim()));
-                // 调用后端预览接口
-                window.open('/preview?filePath=' + encodeURIComponent(encodedUrl));
+                const previewUrl = '/preview?filePath=' + encodeURIComponent(encodedUrl);
+                
+                // 在预览区域嵌入iframe
+                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
             }
         });
     }
@@ -74,6 +84,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('file', selectedFiles[0]);
             
+            // 显示加载中提示
+            previewPaneContent.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; flex: 1; min-height: 75vh;">上传并加载中...</div>';
+            
             // 先上传文件
             fetch('/upload', {
                 method: 'POST',
@@ -81,16 +94,18 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.text())
             .then(filePath => {
-                // 文件上传成功后，调用预览接口
-                window.open('/preview?filePath=' + filePath);
+                const previewUrl = '/preview?filePath=' + encodeURIComponent(filePath);
+                
+                // 切换到预览面板
+                switchToPreviewPane();
+                
+                // 在预览区域嵌入iframe
+                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
             })
             .catch(error => {
                 console.error('文件上传失败:', error);
-                alert('文件上传失败');
+                previewPaneContent.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; flex: 1; min-height: 75vh; color: red;">文件上传失败</div>';
             });
-            
-            // 切换到预览面板
-            switchToPreviewPane();
         }
     });
     
