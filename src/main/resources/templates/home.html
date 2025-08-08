@@ -55,38 +55,18 @@
                         <thead>
                             <tr>
                                 <th>文件名</th>
+                                <th>文件大小</th>
                                 <th>文件类型</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>人力资源部年度报告.docx</td>
-                                <td><span class="file-type document">文档</span></td>
-                                <td><button class="preview-btn">预览</button></td>
-                            </tr>
-                            <tr>
-                                <td>财务报表.xlsx</td>
-                                <td><span class="file-type spreadsheet">表格</span></td>
-                                <td><button class="preview-btn">预览</button></td>
-                            </tr>
-                            <tr>
-                                <td>产品介绍.pptx</td>
-                                <td><span class="file-type presentation">演示</span></td>
-                                <td><button class="preview-btn">预览</button></td>
-                            </tr>
-                            <tr>
-                                <td>技术规范.pdf</td>
-                                <td><span class="file-type pdf">PDF</span></td>
-                                <td><button class="preview-btn">预览</button></td>
-                            </tr>
-                            <tr>
-                                <td>项目截图.png</td>
-                                <td><span class="file-type image">图片</span></td>
-                                <td><button class="preview-btn">预览</button></td>
-                            </tr>
+                        <tbody id="historyTableBody">
+                            <!-- 动态加载历史记录 -->
                         </tbody>
                     </table>
+                    <div class="pagination" id="pagination">
+                        <!-- 分页控件将通过JavaScript动态生成 -->
+                    </div>
                 </div>
             </div>
         </div>

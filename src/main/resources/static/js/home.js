@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileUrl = document.getElementById('fileUrl');
     const previewUrlBtn = document.getElementById('previewUrlBtn');
     const previewPaneContent = document.getElementById('preview-pane-content');
+    const historyTableBody = document.getElementById('historyTableBody');
+    const pagination = document.getElementById('pagination');
+    
+    // 当前页和每页显示条数
+    let currentPage = 1;
+    const rowsPerPage = 8;
+    
+    // 页面加载完成后获取第一页历史记录
+    loadHistoryList(currentPage, rowsPerPage);
     
     // 选项卡切换
     const tabs = document.querySelectorAll('.tab-button');
@@ -101,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // 在预览区域嵌入iframe
                 previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
+                
+                // 重新加载历史记录
+                loadHistoryList(currentPage, rowsPerPage);
             })
             .catch(error => {
                 console.error('文件上传失败:', error);
@@ -287,5 +299,145 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 注意：这里不再移除标签和面板的active类，以保持当前选中的标签状态
         // 这样用户上传后仍然可以看到他们之前选择的是哪个标签（本地上传还是链接上传）
+    }
+    
+    // 加载历史记录列表
+    function loadHistoryList(page, rows) {
+        fetch(`/history-list?page=${page}&rows=${rows}`)
+            .then(response => response.json())
+            .then(data => {
+                // 清空表格内容
+                historyTableBody.innerHTML = '';
+                
+                // 填充表格数据
+                if (data.list && data.list.length > 0) {
+                    data.list.forEach(file => {
+                        const row = document.createElement('tr');
+                        
+                        // 文件名单元格
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = file.name;
+                        row.appendChild(nameCell);
+                        
+                        // 文件大小单元格
+                        const sizeCell = document.createElement('td');
+                        sizeCell.textContent = formatFileSize(file.size);
+                        row.appendChild(sizeCell);
+                        
+                        // 文件类型单元格（直接显示类型字段）
+                        const typeCell = document.createElement('td');
+                        typeCell.textContent = file.type || '未知';
+                        row.appendChild(typeCell);
+                        
+                        // 操作单元格
+                        const actionCell = document.createElement('td');
+                        const previewBtn = document.createElement('button');
+                        previewBtn.className = 'preview-btn';
+                        previewBtn.textContent = '预览';
+                        previewBtn.onclick = () => previewHistoryFile(file.filePath);
+                        actionCell.appendChild(previewBtn);
+                        row.appendChild(actionCell);
+                        
+                        historyTableBody.appendChild(row);
+                    });
+                } else {
+                    // 没有数据时显示提示
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 4;
+                    cell.textContent = '暂无历史记录';
+                    cell.style.textAlign = 'center';
+                    row.appendChild(cell);
+                    historyTableBody.appendChild(row);
+                }
+                
+                // 生成分页控件
+                generatePagination(data.total, page, rows);
+            })
+            .catch(error => {
+                console.error('加载历史记录失败:', error);
+                historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">加载历史记录失败</td></tr>';
+            });
+    }
+    
+    // 生成分页控件
+    function generatePagination(total, currentPage, rowsPerPage) {
+        // 清空分页控件
+        pagination.innerHTML = '';
+        
+        // 计算总页数
+        const totalPages = Math.ceil(total / rowsPerPage);
+        
+        // 创建分页控件容器
+        const paginationContainer = document.createElement('div');
+        paginationContainer.className = 'pagination-container';
+        
+        // 上一页按钮
+        const prevButton = document.createElement('button');
+        prevButton.className = 'pagination-btn';
+        prevButton.textContent = '上一页';
+        prevButton.disabled = currentPage === 1;
+        prevButton.onclick = () => {
+            if (currentPage > 1) {
+                loadHistoryList(currentPage - 1, rowsPerPage);
+            }
+        };
+        paginationContainer.appendChild(prevButton);
+        
+        // 页码按钮
+        const maxVisiblePages = 5; // 最多显示5个页码
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // 调整起始页码
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // 生成页码按钮
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+            pageButton.textContent = i;
+            pageButton.onclick = () => {
+                loadHistoryList(i, rowsPerPage);
+            };
+            paginationContainer.appendChild(pageButton);
+        }
+        
+        // 下一页按钮
+        const nextButton = document.createElement('button');
+        nextButton.className = 'pagination-btn';
+        nextButton.textContent = '下一页';
+        nextButton.disabled = currentPage === totalPages || totalPages === 0;
+        nextButton.onclick = () => {
+            if (currentPage < totalPages) {
+                loadHistoryList(currentPage + 1, rowsPerPage);
+            }
+        };
+        paginationContainer.appendChild(nextButton);
+        
+        // 显示总页数和当前页信息
+        const infoSpan = document.createElement('span');
+        infoSpan.className = 'pagination-info';
+        infoSpan.textContent = `第 ${currentPage} 页，共 ${totalPages} 页，共 ${total} 条记录`;
+        paginationContainer.appendChild(infoSpan);
+        
+        pagination.appendChild(paginationContainer);
+    }
+    
+    // 预览历史文件
+    function previewHistoryFile(filePath) {
+        // 切换到预览面板
+        switchToPreviewPane();
+        
+        // 显示加载中提示
+        previewPaneContent.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; flex: 1; min-height: 75vh;">加载中...</div>';
+        
+        // 构造预览URL并嵌入iframe
+        const previewUrl = '/preview?filePath=' + encodeURIComponent(filePath);
+        
+        // 在预览区域嵌入iframe
+        previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
     }
 });
