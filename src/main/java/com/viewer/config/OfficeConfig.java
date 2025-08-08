@@ -30,7 +30,7 @@ public class OfficeConfig {
         Path libreoffice = Paths.get(System.getProperty("user.dir")).resolve("app/libreoffice");
         officeManager = LocalOfficeManager.builder()
                 .officeHome(libreoffice.toString())
-                .portNumbers(2222, 2223) // 默认端口2002
+                .portNumbers(2222) // 默认端口2002
                 .taskExecutionTimeout(30_000L) // 任务超时时间（毫秒）
                 .processTimeout(30_000L)
                 .maxTasksPerProcess(200)

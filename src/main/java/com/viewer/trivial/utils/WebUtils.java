@@ -3,6 +3,7 @@ package com.viewer.trivial.utils;
 import io.micrometer.common.util.StringUtils;
 
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -17,7 +18,15 @@ public class WebUtils {
         if (StringUtils.isBlank(filePath)) {
             return null;
         }
-        return decodeBase64String(filePath, StandardCharsets.UTF_8);
+        String decodedBase64 = decodeBase64String(filePath, StandardCharsets.UTF_8);
+        // 检查是否还需要进行URL解码
+        try {
+            String urlDecoded = java.net.URLDecoder.decode(decodedBase64, StandardCharsets.UTF_8);
+            return urlDecoded;
+        } catch (Exception e) {
+            // 如果URL解码失败，则返回Base64解码结果
+            return decodedBase64;
+        }
     }
 
     public static String decodeBase64String(String filePath, Charset charsets) {
