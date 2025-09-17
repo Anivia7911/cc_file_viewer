@@ -60,6 +60,11 @@ public class FileAttributeModel implements Serializable {
     private String convertedFilePath;
 
     /**
+     * 转换后的文件名
+     */
+    private String convertedFileName;
+
+    /**
      * 转换后文件类型
      */
     private FileType convertedFileType;
