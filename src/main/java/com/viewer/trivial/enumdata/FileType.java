@@ -15,10 +15,22 @@ public enum FileType {
     pdf("pdfFileConverter", "pdf"),
     doc("wordFileConverter", "doc"),
     docx("wordFileConverter", "docx"),
-    xls("xlsFileConverter", "xls"),
-    xlsx("xlsxFileConverter", "xlsx"),
+    xls("excelFileConverter", "excel"),
+    xlsx("excelFileConverter", "excel"),
     ppt("pptFileConverter", "ppt"),
     pptx("pptxFileConverter", "pptx"),
+    zip("zipFileConverter", "zip"),
+    rar("zipFileConverter", "zip"),
+    sevenZ("zipFileConverter", "zip"),
+    dwg("cadFileConverter", "cad"),
+    dxf("cadFileConverter", "cad"),
+    drawio("drawioFileConverter", "drawio"),
+    md("markdownFileConverter", "markdown"),
+    jpg("imageFileConverter", "image"),
+    jpeg("imageFileConverter", "image"),
+    png("imageFileConverter", "image"),
+    gif("imageFileConverter", "image"),
+    bmp("imageFileConverter", "image"),
     error("error", "err")
     ;
 
@@ -45,7 +57,11 @@ public enum FileType {
 
     public static FileType getFileType(String fileType){
         if (StringUtils.hasText(fileType)) {
-            return FILE_TYPE_MAPPER.get(fileType.toLowerCase());
+            String lowerCase = fileType.toLowerCase();
+            if ("7z".equals(lowerCase)) {
+                return sevenZ;
+            }
+            return FILE_TYPE_MAPPER.get(lowerCase);
         }
         return null;
     }

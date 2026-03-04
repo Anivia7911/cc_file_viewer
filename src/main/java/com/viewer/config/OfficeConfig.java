@@ -43,9 +43,13 @@ public class OfficeConfig {
                 .processTimeout(30_000L)
                 .maxTasksPerProcess(200)
                 .build();
-        officeManager.start();
-        InstalledOfficeManagerHolder.setInstance(officeManager);
-        System.out.println("启动 OfficeManager");
+        try {
+            officeManager.start();
+            InstalledOfficeManagerHolder.setInstance(officeManager);
+            System.out.println("成功启动 OfficeManager");
+        } catch (Exception e) {
+            System.err.println("OfficeManager 启动失败，请检查是否安装了 LibreOffice。错误信息: " + e.getMessage());
+        }
     }
 
     private void killProcess() {

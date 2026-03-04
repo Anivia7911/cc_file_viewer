@@ -395,6 +395,17 @@ body {
     margin-bottom: 20px;
 }
 
+/* 仅针对预览面板隐藏标题，保留说明面板的标题 */
+#preview-pane h3 {
+    display: none !important;
+}
+
+/* 当预览面板激活时，移除 padding 以实现全屏 */
+#preview-pane.full-preview {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
 .tab-preview h3 {
     margin-top: 0;
     margin-bottom: 20px;

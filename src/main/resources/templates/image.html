@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>图片预览</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .viewer {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* 确保图片完整显示且比例正确 */
+            /* 移除阴影以减少黑边感，让图片与背景自然融合 */
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer">
+        <img th:src="${fileAttribute.convertedFilePath}" th:alt="${fileAttribute.fileName}" />
+    </div>
+</body>
+</html>

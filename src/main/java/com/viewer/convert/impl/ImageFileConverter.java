@@ -3,54 +3,55 @@ package com.viewer.convert.impl;
 import com.viewer.convert.AbstractFileConverter;
 import com.viewer.model.FileAttributeModel;
 import com.viewer.trivial.enumdata.FileType;
-import org.jodconverter.core.DocumentConverter;
-import org.jodconverter.core.office.InstalledOfficeManagerHolder;
-import org.jodconverter.local.LocalConverter;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
- * Excel 文件转换器（转换为 PDF 预览）
+ * 图片文件预览（直接展示）
  * @author hcw
  */
 @Service
-public class ExcelFileConverter extends AbstractFileConverter {
+public class ImageFileConverter extends AbstractFileConverter {
 
     @Override
     protected void convertFileHandle(FileAttributeModel model) {
         try {
+            System.out.println("ImageFileConverter 正在处理: " + model.getFilePath());
             File file = new File(model.getFilePath());
             if (!file.exists()) {
+                System.err.println("错误: 待预览的图片文件不存在: " + model.getFilePath());
                 model.setConvertedFileType(FileType.error);
                 return;
             }
 
+            // 获取项目资源目录下的 static/temp 路径
             Path projectRoot = Paths.get(System.getProperty("user.dir"));
             Path tempDir = projectRoot.resolve("file/temp/" + model.getUuid());
 
+            // 创建目录（如果不存在）
             if (!Files.exists(tempDir)) {
                 Files.createDirectories(tempDir);
             }
 
-            // 转换后统一为 PDF 格式
-            String uniqueFilename = file.getName().replaceAll("\\.(xls|xlsx)$", ".pdf");
+            // 生成唯一文件名，避免冲突
+            String uniqueFilename = model.getFileName();
             Path targetPath = tempDir.resolve(uniqueFilename);
 
-            // 使用 JODConverter 执行转换
-            DocumentConverter converter = LocalConverter.make(InstalledOfficeManagerHolder.getInstance());
-            converter.convert(file)
-                    .to(new File(targetPath.toString()))
-                    .execute();
+            // 将图片复制到可供 Web 访问的 temp 目录
+            Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("图片复制完成: " + targetPath.toAbsolutePath());
 
-            // 设置预览属性
+            // 设置预览路径
             model.setConvertedFilePath("/file/temp/" + model.getUuid() + "/" + uniqueFilename);
-            model.setConvertedFileType(FileType.pdf);
+            model.setConvertedFileType(FileType.getFileType(model.getFileType().name())); // 重新通过 getFileType 获取确保一致性
 
         } catch (Exception e) {
+            System.err.println("ImageFileConverter 转换异常: " + e.getMessage());
             e.printStackTrace();
             model.setConvertedFileType(FileType.error);
         }

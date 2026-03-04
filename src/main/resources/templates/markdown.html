@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown 预览 - [[${fileAttribute.fileName}]]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" />
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 100%;
+            margin: 0;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            min-height: 100vh;
+            color: #fff; /* 适配渐变深色背景 */
+            border: none;
+        }
+        /* 针对 GitHub Markdown 样式的深色适配 */
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .markdown-body p, .markdown-body li { color: rgba(255,255,255,0.9); }
+        .markdown-body code { background-color: rgba(255,255,255,0.1); color: #f1c40f; }
+        .markdown-body pre { background-color: rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body class="markdown-body">
+    <div th:utext="${fileAttribute.resultData}"></div>
+</body>
+</html>

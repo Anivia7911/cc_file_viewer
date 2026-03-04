@@ -1,42 +1,38 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${fileAttribute.fileName} + ' - PDF Preview'">PDF Preview</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/pdf.css}">
+    <title>PDF 预览</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden;
+        }
+        #viewer {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+        }
+    </style>
 </head>
 <body>
-<div th:if="${fileAttribute != null}" class="container">
-    <header class="header">
-        <div class="title-wrapper">
-            <span class="file-icon">📄</span>
-            <h1 th:text="${fileAttribute.fileName}" title="${fileAttribute.fileName}">PDF Preview</h1>
-        </div>
-        <div class="actions">
-            <button id="printBtn" class="btn btn-secondary" title="打印文件">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                <span>打印</span>
-            </button>
-            <!-- 直接使用 a 标签进行下载，修复 JS 中无法解析 Thymeleaf 变量的问题 -->
-            <a th:href="${fileAttribute.convertedFilePath}" th:download="${fileAttribute.fileName}" class="btn btn-primary" title="下载文件">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>下载</span>
-            </a>
-        </div>
-    </header>
-    <iframe id="pdfViewer"
-            th:src="${fileAttribute.convertedFilePath}"
-            class="pdf-frame">
-    </iframe>
-</div>
-
-<div th:unless="${fileAttribute != null}" class="error-message">
-    <div class="error-content">
-        <h2>无法加载文件</h2>
-        <p>文件路径为空或文件不存在。</p>
+    <div id="viewer">
+        <!-- 移除工具栏并尝试透明背景 -->
+        <iframe th:src="${fileAttribute.convertedFilePath + '#toolbar=0&navpanes=0&view=FitH'}" 
+                allowtransparency="true" frameborder="0"></iframe>
     </div>
-</div>
-<script type="text/javascript" th:src="@{/js/pdf.js}"></script>
 </body>
 </html>

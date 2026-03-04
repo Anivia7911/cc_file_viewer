@@ -51,22 +51,25 @@ public class FileService {
             return list;
         }
         
-        File[] files = Objects.requireNonNull(dir.listFiles());
-        // 按文件最后修改时间倒序排列（最新的在前）
-        Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+        File[] allFiles = Objects.requireNonNull(dir.listFiles());
+        // 过滤掉文件夹，只保留文件
+        List<File> files = Arrays.stream(allFiles)
+                .filter(File::isFile)
+                .sorted((f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()))
+                .toList();
         
         // 计算分页起始位置
         int start = (page - 1) * rows;
-        int end = Math.min(start + rows, files.length);
+        int end = Math.min(start + rows, files.size());
         
         // 如果起始位置超出文件数组范围，则返回空列表
-        if (start >= files.length) {
+        if (start >= files.size()) {
             return list;
         }
         
         // 只处理当前页的文件
         for (int i = start; i < end; i++) {
-            File file = files[i];
+            File file = files.get(i);
             HistoryFileDTO dto = new HistoryFileDTO();
             dto.setName(file.getName());
             dto.setSize(file.length());
@@ -86,6 +89,8 @@ public class FileService {
         if (!dir.exists() || !dir.isDirectory() || dir.listFiles() == null) {
             return 0;
         }
-        return Objects.requireNonNull(dir.listFiles()).length;
+        return (int) Arrays.stream(Objects.requireNonNull(dir.listFiles()))
+                .filter(File::isFile)
+                .count();
     }
 }

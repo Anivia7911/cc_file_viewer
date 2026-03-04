@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const previewUrl = '/preview?filePath=' + encodeURIComponent(encodedUrl);
                 
                 // 在预览区域嵌入iframe
-                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
+                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; height: 100%; border: none; min-height: 75vh; display: block; margin: 0; padding: 0;"></iframe>`;
             }
         });
     }
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switchToPreviewPane();
                 
                 // 在预览区域嵌入iframe
-                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; border: none; min-height: 75vh;"></iframe>`;
+                previewPaneContent.innerHTML = `<iframe src="${previewUrl}" style="flex: 1; width: 100%; height: 100%; border: none; min-height: 75vh; display: block; margin: 0; padding: 0;"></iframe>`;
                 
                 // 重新加载历史记录
                 loadHistoryList(currentPage, rowsPerPage);
@@ -291,14 +291,16 @@ document.addEventListener('DOMContentLoaded', function() {
             explanationPane.style.display = 'none';
         }
         
-        // 显示preview-pane
+        // 显示preview-pane并应用全屏样式
         const previewPane = document.getElementById('preview-pane');
         if (previewPane) {
-            previewPane.style.display = 'block';
+            previewPane.style.display = 'flex';
+            previewPane.classList.add('full-preview'); // 移除 padding
+            
+            // 隐藏内部的静态标题
+            const staticTitle = document.getElementById('preview-title-static');
+            if (staticTitle) staticTitle.style.display = 'none';
         }
-        
-        // 注意：这里不再移除标签和面板的active类，以保持当前选中的标签状态
-        // 这样用户上传后仍然可以看到他们之前选择的是哪个标签（本地上传还是链接上传）
     }
     
     // 加载历史记录列表

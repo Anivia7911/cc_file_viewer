@@ -68,4 +68,14 @@ public class FileAttributeModel implements Serializable {
      * 转换后文件类型
      */
     private FileType convertedFileType;
+
+    /**
+     * 压缩包内的子文件路径
+     */
+    private String zipEntry;
+
+    /**
+     * 其他结果数据 (如压缩包文件列表)
+     */
+    private Object resultData;
 }
