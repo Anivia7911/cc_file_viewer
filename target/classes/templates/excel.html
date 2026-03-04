@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel 文件预览工具</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-bottom: 2px dashed #3498db;
+        }
+
+        .upload-box {
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px;
+            background-color: rgba(52, 152, 219, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .upload-box:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .upload-box i {
+            font-size: 60px;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+
+        .upload-box h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            text-align: left;
+            max-width: 600px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .preview-section {
+            padding: 20px;
+            display: none;
+        }
+
+        .sheet-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sheet-tab {
+            padding: 10px 20px;
+            background-color: #e3f2fd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .sheet-tab:hover {
+            background-color: #bbdefb;
+        }
+
+        .sheet-tab.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        .preview-container {
+            overflow: auto;
+            max-height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.secondary {
+            background-color: #95a5a6;
+        }
+
+        .btn.danger {
+            background-color: #e74c3c;
+        }
+
+        .instructions {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .empty-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: white;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .upload-box {
+                padding: 20px;
+            }
+
+            .preview-container {
+                max-height: 400px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Excel 文件预览工具</h1>
+        <p class="subtitle">无需安装Office，快速预览Excel文件内容</p>
+    </header>
+
+    <section class="upload-section">
+        <div class="upload-box" id="dropZone">
+            <i>📊</i>
+            <h2>拖放Excel文件到此处</h2>
+            <p>或点击下方按钮选择文件</p>
+            <p>支持 .xlsx, .xls 格式</p>
+
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                <span>选择Excel文件</span>
+            </button>
+
+            <div class="file-info" id="fileInfo"></div>
+        </div>
+    </section>
+
+    <section class="instructions">
+        <h3>使用说明</h3>
+        <ol>
+            <li>点击"选择Excel文件"按钮或直接将Excel文件拖放到上方区域</li>
+            <li>支持标准的.xlsx和.xls格式文件</li>
+            <li>选择文件后，系统会自动解析文件内容并显示预览</li>
+            <li>在预览界面可切换不同工作表查看数据</li>
+            <li>支持表格数据的排序和筛选</li>
+        </ol>
+    </section>
+
+    <section class="preview-section" id="previewSection">
+        <div class="sheet-tabs" id="sheetTabs"></div>
+
+        <div class="preview-container" id="previewContainer">
+            <div class="empty-placeholder" id="emptyPlaceholder">
+                <h3>请上传Excel文件进行预览</h3>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn secondary" onclick="resetPreview()">
+                <span>上传新文件</span>
+            </button>
+            <button class="btn danger" onclick="clearPreview()">
+                <span>清除预览</span>
+            </button>
+        </div>
+    </section>
+</div>
+
+<footer>
+    © 2023 Excel预览工具 | 无需安装Office即可预览Excel文件
+</footer>
+
+<script>
+    // DOM元素
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const previewSection = document.getElementById('previewSection');
+    const sheetTabs = document.getElementById('sheetTabs');
+    const previewContainer = document.getElementById('previewContainer');
+    const emptyPlaceholder = document.getElementById('emptyPlaceholder');
+
+    // 监听文件选择
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            processExcelFile(this.files[0]);
+        }
+    });
+
+    // 拖放功能
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#2980b9';
+        this.style.backgroundColor = 'rgba(52, 152, 219, 0.25)';
+    });
+
+    dropZone.addEventListener('dragleave', function() {
+        this.style.borderColor = '#3498db';
+        this.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3498db';
+        this.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            processExcelFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    // 处理Excel文件
+    function processExcelFile(file) {
+        const fileName = file.name;
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+        const fileType = file.type || fileName.split('.').pop();
+
+        // 检查文件类型
+        if (!fileName.match(/\.(xlsx|xls)$/i)) {
+            alert('请上传Excel文件 (.xlsx 或 .xls)');
+            return;
+        }
+
+        // 更新文件信息
+        fileInfo.innerHTML = `
+                <strong>文件名:</strong> ${fileName}<br>
+                <strong>文件大小:</strong> ${fileSize} MB<br>
+                <strong>文件类型:</strong> ${fileType.toUpperCase()}
+            `;
+        fileInfo.style.display = 'block';
+
+        // 读取文件
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // 显示预览部分
+                previewSection.style.display = 'block';
+                emptyPlaceholder.style.display = 'none';
+
+                // 显示工作表标签
+                renderSheetTabs(workbook);
+
+                // 默认显示第一个工作表
+                switchSheet(workbook, workbook.SheetNames[0]);
+
+            } catch (error) {
+                console.error('解析Excel文件时出错:', error);
+                alert('无法解析Excel文件，请确保文件格式正确且未损坏');
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+
+    // 显示工作表标签
+    function renderSheetTabs(workbook) {
+        sheetTabs.innerHTML = '';
+
+        workbook.SheetNames.forEach(sheetName => {
+            const tab = document.createElement('div');
+            tab.className = 'sheet-tab';
+            tab.textContent = sheetName;
+            tab.onclick = () => switchSheet(workbook, sheetName);
+
+            // 默认激活第一个工作表
+            if (workbook.SheetNames[0] === sheetName) {
+                tab.classList.add('active');
+            }
+
+            sheetTabs.appendChild(tab);
+        });
+    }
+
+    // 切换工作表
+    function switchSheet(workbook, sheetName) {
+        // 更新活动标签
+        document.querySelectorAll('.sheet-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.textContent === sheetName) {
+                tab.classList.add('active');
+            }
+        });
+
+        // 获取工作表数据
+        const worksheet = workbook.Sheets[sheetName];
+        const html = XLSX.utils.sheet_to_html(worksheet);
+
+        // 显示工作表内容
+        previewContainer.innerHTML = html;
+
+        // 添加额外样式
+        const tables = previewContainer.getElementsByTagName('table');
+        if (tables.length > 0) {
+            const table = tables[0];
+            table.className = 'data-table';
+            table.style.width = '100%';
+
+            // 添加排序功能占位
+            const headers = table.getElementsByTagName('th');
+            for (let i = 0; i < headers.length; i++) {
+                headers[i].style.cursor = 'pointer';
+            }
+        }
+    }
+
+    // 重置预览
+    function resetPreview() {
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+        previewSection.style.display = 'none';
+        previewContainer.innerHTML = '';
+        sheetTabs.innerHTML = '';
+        emptyPlaceholder.style.display = 'block';
+    }
+
+    // 清除预览
+    function clearPreview() {
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+        previewContainer.innerHTML = '';
+        sheetTabs.innerHTML = '';
+        emptyPlaceholder.style.display = 'block';
+    }
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('Excel预览工具已初始化');
+    });
+</script>
+</body>
+</html>

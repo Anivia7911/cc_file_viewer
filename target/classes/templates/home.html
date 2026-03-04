@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件在线预览系统</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/home.css}">
+    <script type="text/javascript" th:src="@{/js/home.js}"></script>
+</head>
+<body>
+<main>
+    <h1 class="page-title">文件在线预览系统</h1>
+
+    <!--说明-->
+    <div>
+
+    </div>
+
+    <!--文件选择，可选两个类别：1、本地上传；2、链接上传-->
+    <div class="side-by-side-container">
+        <div class="tab-left">
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <div class="tab-button active" data-tab="upload">本地文件预览</div>
+                    <div class="tab-button" data-tab="url">链接预览</div>
+                </div>
+
+                <!-- 本地上传区域 -->
+                <div class="content-pane active" id="upload-pane">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="file-controls">
+                        <button class="browse-btn" id="browseBtn">选择文件</button>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                        <button class="browse-btn" id="previewBtn" style="display: none;">预览</button>
+                        <button class="browse-btn" id="clearBtn" style="display: none;">清空</button>
+                    </div>
+                    <div id="fileList" class="file-list"></div>
+                </div>
+
+                <!-- 链接上传区域 -->
+                <div class="content-pane" id="url-pane">
+                    <div class="url-upload-container">
+                        <input type="text" id="fileUrl" placeholder="请输入文件链接" class="url-input">
+                        <button class="browse-btn" id="previewUrlBtn" disabled>预览</button>
+                    </div>
+                </div>
+            </div>
+            <!--历史预览列表-->
+            <div>
+                <div class="tab-preview-history">
+                    <h3>历史预览列表</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>文件名</th>
+                                <th>文件大小</th>
+                                <th>文件类型</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- 动态加载历史记录 -->
+                        </tbody>
+                    </table>
+                    <div class="pagination" id="pagination">
+                        <!-- 分页控件将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-right">
+            <div class="tab-preview" id="preview-pane" style="display: none;">
+                <h3>文件预览</h3>
+                <div id="preview-pane-content">
+                    预览
+                </div>
+            </div>
+            <div class="tab-preview active" id="explanation-pane">
+                <h3>支持的文件格式</h3>
+                <li>支持 doc, docx</li>
+                <li>支持 pdf</li>
+                <li>其他类型文件类型支持开发中......</li>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+
+<footer>
+    @Author 接不归 | 文件在线预览
+</footer>
+
+</html>
