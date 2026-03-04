@@ -27,7 +27,15 @@ public class OfficeConfig {
     @PostConstruct
     public void startOfficeManager() throws OfficeException {
         killProcess();
-        Path libreoffice = Paths.get(System.getProperty("user.dir")).resolve("app/libreoffice");
+        Path libreoffice;
+        if (OSUtils.IS_OS_MAC || OSUtils.IS_OS_MAC_OSX) {
+            libreoffice = Paths.get("/Applications/LibreOffice.app/Contents");
+        } else if (OSUtils.IS_OS_WINDOWS) {
+            libreoffice = Paths.get(System.getProperty("user.dir")).resolve("app/libreoffice");
+        } else {
+            libreoffice = Paths.get("/usr/lib/libreoffice");
+        }
+
         officeManager = LocalOfficeManager.builder()
                 .officeHome(libreoffice.toString())
                 .portNumbers(2222) // 默认端口2002

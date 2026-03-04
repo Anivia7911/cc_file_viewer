@@ -22,7 +22,7 @@ import java.util.Properties;
 @Component
 @EnableScheduling
 public class ConfigRefreshScheduler {
-
+    @Autowired
     private ConfigurableEnvironment environment;
 
     @Autowired
